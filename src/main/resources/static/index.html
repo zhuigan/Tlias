@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>员工管理系统 - 智能管理平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Arial, sans-serif;
+            background: #0a0e27;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* 动态背景 */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1729 100%);
+        }
+        
+        /* 粒子效果 */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            background: rgba(100, 200, 255, 0.6);
+            border-radius: 50%;
+            animation: float 20s infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
+        }
+        
+        /* 网格背景 */
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            background-image: 
+                linear-gradient(rgba(100, 200, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(100, 200, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+        }
+        
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        
+        /* 头部 */
+        .header {
+            background: linear-gradient(135deg, rgba(20, 30, 60, 0.95) 0%, rgba(30, 40, 80, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(100, 200, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 60px rgba(100, 200, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(100, 200, 255, 0.1), transparent);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .header h1 {
+            font-size: 42px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #64c8ff 0%, #a78bfa 50%, #64c8ff 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient 3s ease infinite;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        @keyframes gradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 16px;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* 导航栏 */
+        .nav {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            background: rgba(20, 30, 60, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(100, 200, 255, 0.2);
+            border-radius: 15px;
+            padding: 10px;
+        }
+        
+        .nav-btn {
+            flex: 1;
+            padding: 15px 25px;
+            background: rgba(30, 40, 80, 0.5);
+            border: 1px solid rgba(100, 200, 255, 0.2);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(100, 200, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .nav-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .nav-btn:hover {
+            border-color: rgba(100, 200, 255, 0.5);
+            color: #64c8ff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(100, 200, 255, 0.3);
+        }
+        
+        .nav-btn.active {
+            background: linear-gradient(135deg, rgba(100, 200, 255, 0.2) 0%, rgba(167, 139, 250, 0.2) 100%);
+            border-color: #64c8ff;
+            color: #64c8ff;
+            font-weight: 600;
+            box-shadow: 0 0 30px rgba(100, 200, 255, 0.4);
+        }
+        
+        .nav-btn span {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* 内容区域 */
+        .content {
+            background: rgba(20, 30, 60, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(100, 200, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            min-height: 500px;
+        }
+        
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 登录表单 */
+        .login-form {
+            max-width: 450px;
+            margin: 50px auto;
+        }
+        
+        .login-form h2 {
+            text-align: center;
+            color: #64c8ff;
+            margin-bottom: 40px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(30, 40, 80, 0.5);
+            border: 1px solid rgba(100, 200, 255, 0.3);
+            border-radius: 10px;
+            font-size: 15px;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #64c8ff;
+            box-shadow: 0 0 20px rgba(100, 200, 255, 0.3);
+            background: rgba(30, 40, 80, 0.8);
+        }
+        
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* 按钮 */
+        .btn {
+            padding: 15px 35px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #64c8ff 0%, #a78bfa 100%);
+            color: white;
+            width: 100%;
+            box-shadow: 0 5px 20px rgba(100, 200, 255, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(100, 200, 255, 0.6);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            margin-right: 10px;
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
+        }
+        
+        /* 表格 */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+            margin-top: 20px;
+        }
+        
+        th {
+            background: linear-gradient(135deg, rgba(100, 200, 255, 0.2) 0%, rgba(167, 139, 250, 0.2) 100%);
+            padding: 15px;
+            text-align: left;
+            color: #64c8ff;
+            font-weight: 600;
+            border: none;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+        
+        th:first-child {
+            border-radius: 10px 0 0 10px;
+        }
+        
+        th:last-child {
+            border-radius: 0 10px 10px 0;
+        }
+        
+        td {
+            padding: 15px;
+            background: rgba(30, 40, 80, 0.4);
+            border: 1px solid rgba(100, 200, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+        
+        tr td:first-child {
+            border-radius: 10px 0 0 10px;
+        }
+        
+        tr td:last-child {
+            border-radius: 0 10px 10px 0;
+        }
+        
+        tbody tr {
+            transition: all 0.3s ease;
+        }
+        
+        tbody tr:hover {
+            transform: translateX(5px);
+        }
+        
+        tbody tr:hover td {
+            background: rgba(100, 200, 255, 0.1);
+            border-color: rgba(100, 200, 255, 0.3);
+        }
+        
+        /* Token 信息 */
+        .token-info {
+            background: linear-gradient(135deg, rgba(100, 200, 255, 0.1) 0%, rgba(167, 139, 250, 0.1) 100%);
+            border: 1px solid rgba(100, 200, 255, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            word-break: break-all;
+        }
+        
+        .token-info strong {
+            color: #64c8ff;
+            font-size: 16px;
+        }
+        
+        .token-info #tokenValue {
+            margin-top: 10px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* 搜索栏 */
+        .search-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .search-bar input,
+        .search-bar select {
+            padding: 12px 18px;
+            background: rgba(30, 40, 80, 0.5);
+            border: 1px solid rgba(100, 200, 255, 0.3);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .search-bar input:focus,
+        .search-bar select:focus {
+            outline: none;
+            border-color: #64c8ff;
+            box-shadow: 0 0 15px rgba(100, 200, 255, 0.3);
+        }
+        
+        .search-bar input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .search-bar select {
+            cursor: pointer;
+        }
+        
+        .search-bar select option {
+            background: #1a1f3a;
+            color: #fff;
+        }
+        
+        /* 消息提示 */
+        .message {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            animation: slideIn 0.5s ease;
+            border-left: 4px solid;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .message.success {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: #10b981;
+            color: #6ee7b7;
+        }
+        
+        .message.error {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+            color: #fca5a5;
+        }
+        
+        /* 标题样式 */
+        h2 {
+            color: #64c8ff;
+            font-size: 24px;
+            margin-bottom: 25px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        h2::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(135deg, #64c8ff 0%, #a78bfa 100%);
+            border-radius: 2px;
+        }
+        
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(100, 200, 255, 0.3);
+            border-top-color: #64c8ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 28px;
+            }
+            
+            .nav {
+                flex-direction: column;
+            }
+            
+            .search-bar {
+                flex-direction: column;
+            }
+            
+            .search-bar input,
+            .search-bar select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 动态背景 -->
+    <div class="bg-animation"></div>
+    
+    <!-- 粒子效果 -->
+    <div class="particles" id="particles"></div>
+    
+    <!-- 网格背景 -->
+    <div class="grid-bg"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🚀 智能员工管理系统</h1>
+            <p>INTELLIGENT MANAGEMENT PLATFORM</p>
+        </div>
+
+        <div class="nav">
+            <button class="nav-btn active" onclick="showSection('login')">
+                <span>🔐 登录</span>
+            </button>
+            <button class="nav-btn" onclick="showSection('dept')">
+                <span>🏢 部门管理</span>
+            </button>
+            <button class="nav-btn" onclick="showSection('emp')">
+                <span>👥 员工管理</span>
+            </button>
+        </div>
+
+        <div class="content">
+            <!-- 登录部分 -->
+            <div id="login" class="section active">
+                <div class="login-form">
+                    <h2>用户登录</h2>
+                    <div id="loginMessage"></div>
+                    <form onsubmit="login(event)">
+                        <div class="form-group">
+                            <label>用户名</label>
+                            <input type="text" id="username" placeholder="请输入用户名" required>
+                        </div>
+                        <div class="form-group">
+                            <label>密码</label>
+                            <input type="password" id="password" placeholder="请输入密码" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">登录系统</button>
+                        <div style="text-align: center; margin-top: 15px; color: rgba(255,255,255,0.8); font-size: 14px;">
+                            还没有账号？<a href="/register.html" style="color: #64c8ff; text-decoration: none; font-weight: 600;">立即注册</a>
+                        </div>
+                    </form>
+                    <div id="tokenDisplay" style="display: none;">
+                        <div class="token-info">
+                            <strong>🔑 访问令牌</strong>
+                            <div id="tokenValue"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 部门管理部分 -->
+            <div id="dept" class="section">
+                <h2>部门列表</h2>
+                <div id="deptMessage"></div>
+                <button class="btn btn-success" onclick="loadDepts()">🔄 刷新列表</button>
+                <table id="deptTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>部门名称</th>
+                            <th>创建时间</th>
+                            <th>更新时间</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- 员工管理部分 -->
+            <div id="emp" class="section">
+                <h2>员工列表</h2>
+                <div id="empMessage"></div>
+                <div class="search-bar">
+                    <input type="text" id="searchName" placeholder="🔍 搜索姓名">
+                    <select id="searchGender">
+                        <option value="">全部性别</option>
+                        <option value="1">👨 男</option>
+                        <option value="2">👩 女</option>
+                    </select>
+                    <input type="date" id="searchBegin" placeholder="开始日期">
+                    <input type="date" id="searchEnd" placeholder="结束日期">
+                    <button class="btn btn-success" onclick="loadEmps()">🔍 查询</button>
+                </div>
+                <table id="empTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>用户名</th>
+                            <th>姓名</th>
+                            <th>性别</th>
+                            <th>职位</th>
+                            <th>入职日期</th>
+                            <th>部门ID</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 创建粒子效果
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.width = Math.random() * 4 + 1 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = Math.random() * 20 + 10 + 's';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        createParticles();
+        
+        const API_BASE = 'http://localhost:8080';
+        let token = '';
+
+        function showSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(section).classList.add('active');
+            event.target.closest('.nav-btn').classList.add('active');
+
+            if (section === 'dept') loadDepts();
+            if (section === 'emp') loadEmps();
+        }
+
+        function showMessage(elementId, message, type) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = `<div class="message ${type}">${message}</div>`;
+            setTimeout(() => el.innerHTML = '', 3000);
+        }
+
+        async function login(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const result = await response.json();
+
+                if (result.code === 1) {
+                    token = result.data;
+                    localStorage.setItem('token', token);
+                    
+                    // 解析token获取角色信息
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    const role = payload.role;
+                    
+                    if (role === 1) {
+                        showMessage('loginMessage', '✅ 登录成功！正在跳转到管理后台...', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/admin.html';
+                        }, 1000);
+                    } else {
+                        showMessage('loginMessage', '✅ 登录成功！正在跳转到个人中心...', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/user.html';
+                        }, 1000);
+                    }
+                } else {
+                    showMessage('loginMessage', '❌ ' + (result.msg || '登录失败'), 'error');
+                }
+            } catch (error) {
+                showMessage('loginMessage', '❌ 请求失败: ' + error.message, 'error');
+            }
+        }
+
+        async function loadDepts() {
+            try {
+                const response = await fetch(`${API_BASE}/depts`, {
+                    headers: { 'token': token }
+                });
+                const result = await response.json();
+
+                if (result.code === 1) {
+                    const tbody = document.querySelector('#deptTable tbody');
+                    tbody.innerHTML = result.data.map(dept => `
+                        <tr>
+                            <td>${dept.id}</td>
+                            <td>${dept.name}</td>
+                            <td>${dept.createTime || '-'}</td>
+                            <td>${dept.updateTime || '-'}</td>
+                        </tr>
+                    `).join('');
+                    showMessage('deptMessage', '✅ 数据加载成功', 'success');
+                } else {
+                    showMessage('deptMessage', '❌ ' + (result.msg || '加载失败'), 'error');
+                }
+            } catch (error) {
+                showMessage('deptMessage', '❌ 请求失败: ' + error.message, 'error');
+            }
+        }
+
+        async function loadEmps() {
+            const name = document.getElementById('searchName').value;
+            const gender = document.getElementById('searchGender').value;
+            const begin = document.getElementById('searchBegin').value;
+            const end = document.getElementById('searchEnd').value;
+
+            const params = new URLSearchParams({
+                page: 1,
+                pageSize: 10,
+                ...(name && { name }),
+                ...(gender && { gender }),
+                ...(begin && { begin }),
+                ...(end && { end })
+            });
+
+            try {
+                const response = await fetch(`${API_BASE}/emps?${params}`, {
+                    headers: { 'token': token }
+                });
+                const result = await response.json();
+
+                if (result.code === 1) {
+                    const tbody = document.querySelector('#empTable tbody');
+                    tbody.innerHTML = result.data.rows.map(emp => `
+                        <tr>
+                            <td>${emp.id}</td>
+                            <td>${emp.username}</td>
+                            <td>${emp.name}</td>
+                            <td>${emp.gender === 1 ? '👨 男' : '👩 女'}</td>
+                            <td>${emp.job || '-'}</td>
+                            <td>${emp.entrydate || '-'}</td>
+                            <td>${emp.deptId || '-'}</td>
+                        </tr>
+                    `).join('');
+                    showMessage('empMessage', `✅ 加载成功，共 ${result.data.total} 条记录`, 'success');
+                } else {
+                    showMessage('empMessage', '❌ ' + (result.msg || '加载失败'), 'error');
+                }
+            } catch (error) {
+                showMessage('empMessage', '❌ 请求失败: ' + error.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

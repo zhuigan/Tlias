@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心 - Tlias 员工管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 24px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn {
+            background: #f56565;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background: #e53e3e;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .profile-card {
+            text-align: center;
+        }
+
+        .avatar-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+        }
+
+        .avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #667eea;
+        }
+
+        .avatar-upload {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #667eea;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 3px solid white;
+        }
+
+        .avatar-upload:hover {
+            background: #5568d3;
+        }
+
+        .avatar-upload input {
+            display: none;
+        }
+
+        .profile-info {
+            margin-top: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .info-label {
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-male {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+
+        .badge-female {
+            background: #fbb6ce;
+            color: #702459;
+        }
+
+        .badge-admin {
+            background: #fbd38d;
+            color: #744210;
+        }
+
+        .badge-user {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .colleagues-card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .colleagues-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .colleague-item {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .colleague-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .colleague-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 10px;
+            border: 2px solid #667eea;
+        }
+
+        .colleague-name {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .colleague-job {
+            font-size: 13px;
+            color: #718096;
+        }
+
+        .message {
+            padding: 12px 20px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .message.success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+
+        .message.error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+        }
+
+        .message.active {
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #a0aec0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0aec0;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            
+            .colleagues-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>👤 个人中心</h1>
+            <div class="user-info">
+                <span id="currentUser">加载中...</span>
+                <button class="logout-btn" onclick="logout()">退出登录</button>
+            </div>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <!-- 内容区域 -->
+        <div class="content">
+            <!-- 个人信息卡片 -->
+            <div class="card profile-card">
+                <div class="avatar-container">
+                    <img id="avatar" class="avatar" src="https://via.placeholder.com/150" alt="头像">
+                    <label class="avatar-upload">
+                        📷
+                        <input type="file" accept="image/*" onchange="uploadAvatar(event)">
+                    </label>
+                </div>
+                <h2 id="userName">加载中...</h2>
+                <p id="userUsername" style="color: #718096; margin-top: 5px;">@username</p>
+                
+                <div class="profile-info">
+                    <div class="info-item">
+                        <span class="info-label">性别</span>
+                        <span class="info-value" id="userGender">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">职位</span>
+                        <span class="info-value" id="userJob">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">部门</span>
+                        <span class="info-value" id="userDept">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">入职日期</span>
+                        <span class="info-value" id="userEntrydate">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">角色</span>
+                        <span class="info-value" id="userRole">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 同事列表卡片 -->
+            <div class="card colleagues-card">
+                <h2>🤝 同部门同事</h2>
+                <div id="colleaguesGrid" class="colleagues-grid">
+                    <div class="loading">加载中...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let token = localStorage.getItem('token');
+        let currentUser = null;
+        let depts = [];
+
+        // 检查登录状态
+        if (!token) {
+            window.location.href = '/index.html';
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCurrentUser();
+            loadDepts();
+        });
+
+        // 显示消息
+        function showMessage(text, type = 'success') {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = `message ${type} active`;
+            setTimeout(() => {
+                msg.className = 'message';
+            }, 3000);
+        }
+
+        // 退出登录
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/index.html';
+        }
+
+        // 加载当前用户信息
+        async function loadCurrentUser() {
+            try {
+                const response = await fetch('http://localhost:8080/emps/current', {
+                    headers: { 'token': token }
+                });
+                const result = await response.json();
+                
+                if (result.code === 1) {
+                    currentUser = result.data;
+                    renderUserProfile(currentUser);
+                    loadColleagues();
+                } else {
+                    showMessage('加载用户信息失败', 'error');
+                }
+            } catch (error) {
+                showMessage('网络错误', 'error');
+            }
+        }
+
+        // 渲染用户信息
+        function renderUserProfile(user) {
+            const jobMap = { 1: '班主任', 2: '讲师', 3: '学工主管', 4: '教研主管', 5: '咨询师' };
+            
+            document.getElementById('currentUser').textContent = user.name;
+            document.getElementById('avatar').src = user.image || 'https://via.placeholder.com/150';
+            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userUsername').textContent = '@' + user.username;
+            
+            const genderBadge = user.gender === 1 ? 
+                '<span class="badge badge-male">男</span>' : 
+                '<span class="badge badge-female">女</span>';
+            document.getElementById('userGender').innerHTML = genderBadge;
+            
+            document.getElementById('userJob').textContent = jobMap[user.job] || '-';
+            document.getElementById('userEntrydate').textContent = user.entrydate || '-';
+            
+            const roleBadge = user.role === 1 ? 
+                '<span class="badge badge-admin">管理员</span>' : 
+                '<span class="badge badge-user">普通用户</span>';
+            document.getElementById('userRole').innerHTML = roleBadge;
+        }
+
+        // 加载部门列表
+        async function loadDepts() {
+            try {
+                const response = await fetch('http://localhost:8080/depts', {
+                    headers: { 'token': token }
+                });
+                const result = await response.json();
+                
+                if (result.code === 1) {
+                    depts = result.data;
+                    if (currentUser) {
+                        const dept = depts.find(d => d.id === currentUser.deptId);
+                        document.getElementById('userDept').textContent = dept ? dept.name : '-';
+                    }
+                }
+            } catch (error) {
+                console.error('加载部门失败', error);
+            }
+        }
+
+        // 加载同事列表
+        async function loadColleagues() {
+            try {
+                const response = await fetch('http://localhost:8080/emps?page=1&pageSize=100', {
+                    headers: { 'token': token }
+                });
+                const result = await response.json();
+                
+                if (result.code === 1) {
+                    // 过滤掉自己
+                    const colleagues = result.data.rows.filter(emp => emp.id !== currentUser.id);
+                    renderColleagues(colleagues);
+                } else {
+                    showMessage('加载同事列表失败', 'error');
+                }
+            } catch (error) {
+                showMessage('网络错误', 'error');
+            }
+        }
+
+        // 渲染同事列表
+        function renderColleagues(colleagues) {
+            const grid = document.getElementById('colleaguesGrid');
+            const jobMap = { 1: '班主任', 2: '讲师', 3: '学工主管', 4: '教研主管', 5: '咨询师' };
+            
+            if (colleagues.length === 0) {
+                grid.innerHTML = '<div class="empty-state">暂无同部门同事</div>';
+                return;
+            }
+            
+            grid.innerHTML = colleagues.map(colleague => `
+                <div class="colleague-item">
+                    <img class="colleague-avatar" src="${colleague.image || 'https://via.placeholder.com/80'}" alt="${colleague.name}">
+                    <div class="colleague-name">${colleague.name}</div>
+                    <div class="colleague-job">${jobMap[colleague.job] || '未分配'}</div>
+                </div>
+            `).join('');
+        }
+
+        // 上传头像
+        async function uploadAvatar(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // 检查文件类型
+            if (!file.type.startsWith('image/')) {
+                showMessage('请选择图片文件', 'error');
+                return;
+            }
+            
+            // 检查文件大小（限制5MB）
+            if (file.size > 5 * 1024 * 1024) {
+                showMessage('图片大小不能超过5MB', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('image', file);
+            
+            try {
+                showMessage('正在上传...', 'success');
+                
+                // 上传到阿里云OSS
+                const uploadResponse = await fetch('http://localhost:8080/upload', {
+                    method: 'POST',
+                    headers: { 'token': token },
+                    body: formData
+                });
+                const uploadResult = await uploadResponse.json();
+                
+                if (uploadResult.code === 1) {
+                    const imageUrl = uploadResult.data;
+                    
+                    // 更新用户头像
+                    const updateResponse = await fetch('http://localhost:8080/emps/avatar', {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'token': token
+                        },
+                        body: JSON.stringify({
+                            id: currentUser.id,
+                            image: imageUrl
+                        })
+                    });
+                    const updateResult = await updateResponse.json();
+                    
+                    if (updateResult.code === 1) {
+                        showMessage('头像更新成功');
+                        document.getElementById('avatar').src = imageUrl;
+                        currentUser.image = imageUrl;
+                    } else {
+                        showMessage('头像更新失败', 'error');
+                    }
+                } else {
+                    showMessage('图片上传失败', 'error');
+                }
+            } catch (error) {
+                showMessage('上传失败: ' + error.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

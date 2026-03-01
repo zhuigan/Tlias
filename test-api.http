@@ -1,0 +1,26 @@
+### 测试部门列表接口（无需登录）
+GET http://localhost:8080/depts
+Content-Type: application/json
+
+### 测试登录接口
+POST http://localhost:8080/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "123456"
+}
+
+### 测试注册接口
+POST http://localhost:8080/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "123456",
+  "name": "测试用户",
+  "gender": 1,
+  "job": 2,
+  "deptId": 1,
+  "entrydate": "2024-02-25"
+}
